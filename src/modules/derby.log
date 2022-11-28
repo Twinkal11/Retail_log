@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Mon Nov 28 14:31:00 IST 2022:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-0184-bd77-dee1-000005d39f70 
+on database directory C:\Retail_log_project\src\modules\metastore_db with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@46fbb2c1 
+Loaded from file:/C:/bigdata/spark/jars/derby-10.14.2.0.jar
+java.vendor=Oracle Corporation
+java.runtime.version=11.0.15+8-LTS-149
+user.dir=C:\Retail_log_project\src\modules
+os.name=Windows 10
+os.arch=amd64
+os.version=10.0
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
