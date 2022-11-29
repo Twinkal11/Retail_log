@@ -15,11 +15,11 @@ class clean_layer():
         "C:\\Retail_log_project\\src\\internal_files\\raw_layer_retail\\",
         header="True")
 
-    def drop_Freight(self):
-        self.DroP_Freight = self.clean_df.drop(col('Freight'))
+    # def drop_Freight(self):
+    #     self.DroP_Freight = self.clean_df.drop(col('Freight'))
 
     def set_one(self):
-        self.set_one_value_OrderQuantity = self.DroP_Freight.withColumn("OrderQuantity",
+        self.set_one_value_OrderQuantity = self.clean_df.withColumn("OrderQuantity",
                                                                         F.when(F.isnull(F.col("OrderQuantity")),
                                                                                1).otherwise(F.col("OrderQuantity")))
         self.set_one_value_OrderQuantity.show()
@@ -77,7 +77,7 @@ class clean_layer():
 
 if __name__ == '__main__':
     clean_l = clean_layer()
-    clean_l.drop_Freight()
+    # clean_l.drop_Freight()
     clean_l.set_one()
     clean_l.check_NA()
     clean_l.fill_NA()

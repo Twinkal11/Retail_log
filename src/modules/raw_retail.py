@@ -49,7 +49,7 @@ class raw_ly:
 
     def save(self):
         self.dataSchema.coalesce(1).write.mode("overwrite").format("csv").save(
-            "C:\\Retail_log_project\\src\\internal_files\\raw_layer_retail\\", header="True")
+            "C:\\Retail_log_project\\src\\internal_files\\raw_layer_retail\\", header="True", mode='overwrite')
 
     def show_On_Hive(self):
         pass

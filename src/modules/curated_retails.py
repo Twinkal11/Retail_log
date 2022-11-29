@@ -6,6 +6,8 @@ from pyspark.sql.types import *
 from pyspark.sql import HiveContext
 from pyspark.sql import functions as F
 import re
+from pyspark.sql.window import Window
+from pyspark.sql.functions import col, row_number
 
 
 class curated_layer():
@@ -20,61 +22,70 @@ class curated_layer():
 
     def Drop_Discount(self):
         self.remove_discount = self.discount_present.drop(col('DiscountAmount'))
+        #
+        # self.remove_discount.show()
 
-        self.remove_discount.show()
+    def salesamount_Freight(self):
+        self.curated_l = self.remove_discount.withColumn("salesprice-freight-taxes-result",
+                                                         F.col("SalesAmount") - (F.col("TaxAmount") + F.col("Freight")))
+        # self.curated_l.show()
 
-    # Aggregations:
-    # Check how many products have been sold under each category.
-    # Check how much sales is done in each region
+    def agg_cat(self):
+        self.agg_OrderQuantity_SalesAmount = self.remove_discount.groupBy("Category").agg(
+            F.sum("OrderQuantity").alias("OrderQuantity"), F.sum("SalesAmount").alias("SalesAmount")).orderBy(
+            F.col("OrderQuantity").desc())
+        self.agg_OrderQuantity_SalesAmount.show()
 
-    def sold_categoryWise(self):
-        self.Product_sold = self.remove_discount.groupBy("Category") \
-            .agg(sum("OrderQuantity").alias("OrderQuantity"))
+    def categorywise_agg(self):
+        self.categorywise_agg = self.remove_discount.groupBy("Category", "Subcategory").agg(
+            F.sum("OrderQuantity").alias("OrderQuantity"),
+            F.sum("SalesAmount").alias("SalesAmount")) \
+            .orderBy(F.col("OrderQuantity").asc())
+        cat_sub = Window.partitionBy("Category").orderBy(F.col("OrderQuantity").desc())
+        self.curated_df = self.categorywise_agg.withColumn("row", F.row_number().over(cat_sub)) \
+            .filter(F.col("row") <= 10).drop("row")
 
-        self.Product_sold.show()
-
-    def sales_per_region(self):
-        self.sales_per_region = self.remove_discount.groupBy("SalesRegion") \
-            .agg(sum("OrderQuantity").alias("OrderQuantity"))
-
-        self.sales_per_region.show()
+        self.curated_df.show()
 
     def curated_layer_data(self):
-        self.remove_discount.write.csv(
-            "C:\\Retail_log_project\\src\\internal_files\\curated_layer_Retail_result\\",
-            header=True, mode='overwrite')
+        self.curated_l.coalesce(1).write.mode("overwrite").format('csv').option("header", True).save(
+            "C:\\Retail_log_project\\src\\internal_files\\curated_layer_Retail_result\\curated_layer_Retail_result\\curated_layer_Retail_result.csv")
+
 
     def sold_category_wise_SAVE(self):
-        self.Product_sold.write.csv(
-            "C:\\Retail_log_project\\src\\internal_files\\curated_layer_Retail_result\\catagorywise_sold\\", header=True)
+        self.agg_OrderQuantity_SalesAmount.coalesce(1).write.mode("overwrite").format('csv').option("header", True).save(
+            "C:\\Retail_log_project\\src\\internal_files\\curated_layer_Retail_result\\agg_orderquantity_SalesAmount\\agg_orderquantity_SalesAmount.csv")
 
     def sales_per_region_wise(self):
-        self.sales_per_region.write.csv(
-            "C:\\Retail_log_project\\src\\internal_files\\curated_layer_Retail_result\\sales_per_region\\", header=True)
+        self.curated_df.coalesce(1).write.mode("overwrite").format('csv').option("header", True).save(
+            "C:\\Retail_log_project\\src\\internal_files\\curated_layer_Retail_result\\Top_ten_subcategory\\Top_ten_subcategory.csv")
+
 
     def hive_table_for_sold_category_wise_product(self):
         pass
         sqlContext = HiveContext(self.spark.sparkContext)
-        sqlContext.sql('DROP TABLE IF EXISTS sold_category_wise')
-        self.Product_sold.write.option("mode", "overwrite").saveAsTable('sold_category_wise')
+        sqlContext.sql('DROP TABLE IF EXISTS hive_sold_category_wise')
+        self.agg_OrderQuantity_SalesAmount.write.option("mode", "overwrite").saveAsTable('hive_sold_category_wise')
         self.spark.sql("select count(*) from sold_category_wise").show()
 
-    def hive_table_for_sales_per_region_wise(self):
+    def hive_table_for_cat_subcatagorywise(self):
         pass
         sqlContext = HiveContext(self.spark.sparkContext)
-        sqlContext.sql('DROP TABLE IF EXISTS sales_per_region_wise')
-        self.sales_per_region.write.option("mode", "overwrite").saveAsTable('sales_per_region_wise')
-        self.spark.sql("select count(*) from sales_per_region_wise").show()
+        sqlContext.sql('DROP TABLE IF EXISTS hive_Top_ten_subcategory')
+        self.curated_df.write.option("mode", "overwrite").saveAsTable('hive_Top_ten_subcategory')
+        self.spark.sql("select count(*) from hive_Top_ten_subcategory").show()
 
 
 if __name__ == '__main__':
-    curated = curated_layer()
-    curated.Discount_present_y_N()
-    curated.Drop_Discount()
-    curated.sold_categoryWise()
-    curated.sales_per_region()
-    curated.curated_layer_data()
-    curated.sold_category_wise_SAVE()
-    curated.sales_per_region_wise()
-    curated.hive_table_for_sold_category_wise_product()
-    curated.hive_table_for_sales_per_region_wise()
+    c = curated_layer()
+    c.Discount_present_y_N()
+    c.Drop_Discount()
+    c.salesamount_Freight()
+    c.agg_cat()
+    c.categorywise_agg()
+    c.curated_layer_data()
+    c.sold_category_wise_SAVE()
+    c.sales_per_region_wise()
+    c.hive_table_for_sold_category_wise_product()
+    c.hive_table_for_cat_subcatagorywise()
+
