@@ -1,11 +1,11 @@
 ----------------------------------------------------------------
-Fri Dec 16 16:13:26 IST 2022:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-0185-1a88-1c8c-000008aae440 
-on database directory C:\Retail_log\src\modules\metastore_db with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@46fbb2c1 
+Thu Jan 05 15:35:36 IST 2023:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-0185-8164-ac18-000003da77e0 
+on database directory C:\Retail_log_project\src\modules\metastore_db with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@46fbb2c1 
 Loaded from file:/C:/bigdata/spark/jars/derby-10.14.2.0.jar
 java.vendor=Oracle Corporation
 java.runtime.version=11.0.15+8-LTS-149
-user.dir=C:\Retail_log\src\modules
+user.dir=C:\Retail_log_project\src\modules
 os.name=Windows 10
 os.arch=amd64
 os.version=10.0
