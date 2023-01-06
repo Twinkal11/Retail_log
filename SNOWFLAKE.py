@@ -6,12 +6,12 @@ def write_to_snowflake():
     snowflake_schema = "public"
     target_table_name = "curated_log_details"
     snowflake_options = {
-        "sfUrl": "jn94146.ap-south-1.aws.snowflakecomputing.com",
-        "sfUser": "sushantsangle",
-        "sfPassword": "Stanford@01",
+        "sfUrl": "cz67521.ap-southeast-1.snowflakecomputing.com",
+        "sfUser": "twinkal",
+        "sfPassword": "Twinkal@123",
         "sfDatabase": snowflake_database,
         "sfSchema": snowflake_schema,
-        "sfWarehouse": "curated_snowflake"
+        "sfWarehouse": "COMPUTE_DATA"
     }
     spark = SparkSession.builder \
         .appName("Demo_Project").enableHiveSupport().getOrCreate()
@@ -25,7 +25,7 @@ def write_to_snowflake():
         .mode("overwrite") \
         .save()
     df_cleans = spark.read.format("csv").option("header","True").load(
-        "s3://twinkal-db//clean_layer_retail.csv")
+        "s3://twinkal-db/Clean_layer_retail.csv")
     cleans = df_cleans.select("*")
     cleans.write.format("snowflake") \
         .options(**snowflake_options) \
@@ -34,7 +34,7 @@ def write_to_snowflake():
         .mode("overwrite") \
         .save()
     df_curate = spark.read.format("csv").option("header","True").load(
-        "s3://twinkal-db//curated_layer_retail.csv")
+        "s3://twinkal-db//Curated_layer_Retail.csv")
     curate = df_curate.select("*")
     curate.write.format("snowflake") \
         .options(**snowflake_options) \
@@ -43,20 +43,20 @@ def write_to_snowflake():
         .mode("overwrite") \
         .save()
     df_per = spark.read.format("csv").option("header","True").load(
-        "s3://twinkal-db//curated_sales_per_Region.csv")
+        "s3://twinkal-db//category.csv")
     per = df_per.select("*")
     per.write.format("snowflake") \
         .options(**snowflake_options) \
-        .option("dbtable", "curated_sales_per_Region") \
+        .option("dbtable", "category") \
         .option("header", "true") \
         .mode("overwrite") \
         .save()
     df_across = spark.read.format("csv").option("header","True").load(
-        "s3://twinkal-db//curated_categary_wise_sold.csv")
+        "s3://twinkal-db//product.csv")
     across = df_across.select("*")
     across.write.format("snowflake") \
         .options(**snowflake_options) \
-        .option("dbtable", "curated_categary_wise_sold") \
+        .option("dbtable", "product") \
         .option("header", "true") \
         .mode("overwrite") \
         .save()
