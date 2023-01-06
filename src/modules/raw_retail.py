@@ -13,7 +13,7 @@ class raw_ly:
         .enableHiveSupport().getOrCreate()
 
     def read_file(self):
-        df = self.spark.read.format("csv").option("header", "true").load("C:\\Retail_log_project\\input_file\\Retail.csv")
+        df = self.spark.read.format("csv").option("header", "true").load("C:\\Retail_log\\input_file\\Retail.csv")
 
         self.df = df.withColumn("id", monotonically_increasing_id())
         self.df1 = self.df.select("id", "OrderNumber", "ProductName", "Color", "Category", "Subcategory", "ListPrice",
